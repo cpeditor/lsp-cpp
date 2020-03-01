@@ -1,0 +1,10 @@
+.vscode/
+.idea/
+
+build/
+out/
+
+*.exe
+*.out
+
+
