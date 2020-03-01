@@ -33,6 +33,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 		-Woverloaded-virtual
 		-Winit-self
 		-Wunreachable-code
+		-Wno-unused-parameter
 	)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
