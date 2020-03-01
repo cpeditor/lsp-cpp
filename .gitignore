@@ -4,6 +4,7 @@
 build/
 out/
 
+*.user
 *.exe
 *.out
 
