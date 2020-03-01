@@ -484,7 +484,7 @@ struct ShowMessageParams
 JSON_SERIALIZE(ShowMessageParams, {}, {
     FROM_KEY(type);
     FROM_KEY(message)
-});
+})
 
 struct Registration
 {
