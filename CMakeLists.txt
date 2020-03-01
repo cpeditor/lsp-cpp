@@ -30,7 +30,6 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 		-pedantic
 		-Wall
 		-Wextra
-		-Weffc++
 		-Woverloaded-virtual
 		-Winit-self
 		-Wunreachable-code

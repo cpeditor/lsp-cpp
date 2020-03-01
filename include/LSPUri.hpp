@@ -122,7 +122,7 @@ struct URIForFile {
                 result += ToHex((uint8_t) ch % 16);
             }
         }
-        return std::move(result);
+        return result;
     }
     explicit operator bool() const { return !file.empty(); }
     friend bool operator==(const URIForFile &LHS, const URIForFile &RHS) {
