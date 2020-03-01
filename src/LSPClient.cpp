@@ -1,3 +1,11 @@
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
 
 /*
  * Copyright (C) 2019-2020 Ashar Khan <ashar786khan@gmail.com>
@@ -145,7 +153,7 @@ RequestID LSPClient::registerCapability()
 void LSPClient::didOpen(DocumentUri uri, string_ref text, string_ref languageId = "cpp")
 {
     DidOpenTextDocumentParams params;
-    params.textDocument.uri = std::move(uri);
+    params.textDocument.uri = uri;
     params.textDocument.text = text;
     params.textDocument.languageId = languageId;
     SendNotification("textDocument/didOpen", params);
@@ -153,14 +161,14 @@ void LSPClient::didOpen(DocumentUri uri, string_ref text, string_ref languageId 
 void LSPClient::didClose(DocumentUri uri)
 {
     DidCloseTextDocumentParams params;
-    params.textDocument.uri = std::move(uri);
+    params.textDocument.uri = uri;
     SendNotification("textDocument/didClose", params);
 }
 void LSPClient::didChange(DocumentUri uri, std::vector<TextDocumentContentChangeEvent> &changes,
                           option<bool> wantDiagnostics)
 {
     DidChangeTextDocumentParams params;
-    params.textDocument.uri = std::move(uri);
+    params.textDocument.uri = uri;
     params.contentChanges = std::move(changes);
     params.wantDiagnostics = wantDiagnostics;
     SendNotification("textDocument/didChange", params);
@@ -168,41 +176,41 @@ void LSPClient::didChange(DocumentUri uri, std::vector<TextDocumentContentChange
 RequestID LSPClient::rangeFomatting(DocumentUri uri, Range range)
 {
     DocumentRangeFormattingParams params;
-    params.textDocument.uri = std::move(uri);
+    params.textDocument.uri = uri;
     params.range = range;
     return SendRequest("textDocument/rangeFormatting", params);
 }
 RequestID LSPClient::foldingRange(DocumentUri uri)
 {
     FoldingRangeParams params;
-    params.textDocument.uri = std::move(uri);
+    params.textDocument.uri = uri;
     return SendRequest("textDocument/foldingRange", params);
 }
 RequestID LSPClient::selectionRange(DocumentUri uri, std::vector<Position> &positions)
 {
     SelectionRangeParams params;
-    params.textDocument.uri = std::move(uri);
+    params.textDocument.uri = uri;
     params.positions = std::move(positions);
     return SendRequest("textDocument/selectionRange", params);
 }
 RequestID LSPClient::onTypeFormatting(DocumentUri uri, Position position, string_ref ch)
 {
     DocumentOnTypeFormattingParams params;
-    params.textDocument.uri = std::move(uri);
+    params.textDocument.uri = uri;
     params.position = position;
-    params.ch = std::move(ch);
-    return SendRequest("textDocument/onTypeFormatting", std::move(params));
+    params.ch = ch;
+    return SendRequest("textDocument/onTypeFormatting", params);
 }
 RequestID LSPClient::formatting(DocumentUri uri)
 {
     DocumentFormattingParams params;
-    params.textDocument.uri = std::move(uri);
-    return SendRequest("textDocument/formatting", std::move(params));
+    params.textDocument.uri = uri;
+    return SendRequest("textDocument/formatting", params);
 }
 RequestID LSPClient::codeAction(DocumentUri uri, Range range, CodeActionContext context)
 {
     CodeActionParams params;
-    params.textDocument.uri = std::move(uri);
+    params.textDocument.uri = uri;
     params.range = range;
     params.context = std::move(context);
     return SendRequest("textDocument/codeAction", std::move(params));
@@ -210,7 +218,7 @@ RequestID LSPClient::codeAction(DocumentUri uri, Range range, CodeActionContext 
 RequestID LSPClient::completion(DocumentUri uri, Position position, option<CompletionContext> context)
 {
     CompletionParams params;
-    params.textDocument.uri = std::move(uri);
+    params.textDocument.uri = uri;
     params.position = position;
     params.context = context;
     return SendRequest("textDocument/completion", params);
@@ -218,41 +226,41 @@ RequestID LSPClient::completion(DocumentUri uri, Position position, option<Compl
 RequestID LSPClient::signatureHelp(DocumentUri uri, Position position)
 {
     TextDocumentPositionParams params;
-    params.textDocument.uri = std::move(uri);
+    params.textDocument.uri = uri;
     params.position = position;
-    return SendRequest("textDocument/signatureHelp", std::move(params));
+    return SendRequest("textDocument/signatureHelp", params);
 }
 RequestID LSPClient::gotoDefinition(DocumentUri uri, Position position)
 {
     TextDocumentPositionParams params;
-    params.textDocument.uri = std::move(uri);
+    params.textDocument.uri = uri;
     params.position = position;
-    return SendRequest("textDocument/definition", std::move(params));
+    return SendRequest("textDocument/definition", params);
 }
 RequestID LSPClient::gotoDeclaration(DocumentUri uri, Position position)
 {
     TextDocumentPositionParams params;
-    params.textDocument.uri = std::move(uri);
+    params.textDocument.uri = uri;
     params.position = position;
-    return SendRequest("textDocument/declaration", std::move(params));
+    return SendRequest("textDocument/declaration", params);
 }
 RequestID LSPClient::references(DocumentUri uri, Position position)
 {
     ReferenceParams params;
-    params.textDocument.uri = std::move(uri);
+    params.textDocument.uri = uri;
     params.position = position;
-    return SendRequest("textDocument/references", std::move(params));
+    return SendRequest("textDocument/references", params);
 }
 RequestID LSPClient::switchSourceHeader(DocumentUri uri)
 {
     TextDocumentIdentifier params;
-    params.uri = std::move(uri);
-    return SendRequest("textDocument/references", std::move(params));
+    params.uri = uri;
+    return SendRequest("textDocument/references", params);
 }
 RequestID LSPClient::rename(DocumentUri uri, Position position, string_ref newName)
 {
     RenameParams params;
-    params.textDocument.uri = std::move(uri);
+    params.textDocument.uri = uri;
     params.position = position;
     params.newName = newName;
     return SendRequest("textDocument/rename", std::move(params));
@@ -260,56 +268,56 @@ RequestID LSPClient::rename(DocumentUri uri, Position position, string_ref newNa
 RequestID LSPClient::hover(DocumentUri uri, Position position)
 {
     TextDocumentPositionParams params;
-    params.textDocument.uri = std::move(uri);
+    params.textDocument.uri = uri;
     params.position = position;
-    return SendRequest("textDocument/hover", std::move(params));
+    return SendRequest("textDocument/hover", params);
 }
 RequestID LSPClient::documentSymbol(DocumentUri uri)
 {
     DocumentSymbolParams params;
-    params.textDocument.uri = std::move(uri);
-    return SendRequest("textDocument/documentSymbol", std::move(params));
+    params.textDocument.uri = uri;
+    return SendRequest("textDocument/documentSymbol", params);
 }
 RequestID LSPClient::documentColor(DocumentUri uri)
 {
     DocumentSymbolParams params;
-    params.textDocument.uri = std::move(uri);
-    return SendRequest("textDocument/documentColor", std::move(params));
+    params.textDocument.uri = uri;
+    return SendRequest("textDocument/documentColor", params);
 }
 RequestID LSPClient::documentHighlight(DocumentUri uri, Position position)
 {
     TextDocumentPositionParams params;
-    params.textDocument.uri = std::move(uri);
+    params.textDocument.uri = uri;
     params.position = position;
-    return SendRequest("textDocument/documentHighlight", std::move(params));
+    return SendRequest("textDocument/documentHighlight", params);
 }
 RequestID LSPClient::symbolInfo(DocumentUri uri, Position position)
 {
     TextDocumentPositionParams params;
-    params.textDocument.uri = std::move(uri);
+    params.textDocument.uri = uri;
     params.position = position;
-    return SendRequest("textDocument/symbolInfo", std::move(params));
+    return SendRequest("textDocument/symbolInfo", params);
 }
 RequestID LSPClient::typeHierarchy(DocumentUri uri, Position position, TypeHierarchyDirection direction, int resolve)
 {
     TypeHierarchyParams params;
-    params.textDocument.uri = std::move(uri);
+    params.textDocument.uri = uri;
     params.position = position;
     params.direction = direction;
     params.resolve = resolve;
-    return SendRequest("textDocument/typeHierarchy", std::move(params));
+    return SendRequest("textDocument/typeHierarchy", params);
 }
 RequestID LSPClient::workspaceSymbol(string_ref query)
 {
     WorkspaceSymbolParams params;
     params.query = query;
-    return SendRequest("workspace/symbol", std::move(params));
+    return SendRequest("workspace/symbol", params);
 }
 RequestID LSPClient::executeCommand(string_ref cmd, option<TweakArgs> tweakArgs, option<WorkspaceEdit> workspaceEdit)
 {
     ExecuteCommandParams params;
-    params.tweakArgs = tweakArgs;
-    params.workspaceEdit = workspaceEdit;
+    params.tweakArgs = std::move(tweakArgs);
+    params.workspaceEdit = std::move(workspaceEdit);
     params.command = cmd;
     return SendRequest("workspace/executeCommand", std::move(params));
 }
@@ -344,13 +352,13 @@ RequestID LSPClient::sendRequest(string_ref method, QJsonDocument &jsonDoc)
 // general send and notify
 void LSPClient::SendNotification(string_ref method, json jsonDoc)
 {
-    notify(method, jsonDoc);
+    notify(method, std::move(jsonDoc));
 }
 
 RequestID LSPClient::SendRequest(string_ref method, json jsonDoc)
 {
     std::string id = method.str();
-    request(method, jsonDoc, id);
+    request(method, std::move(jsonDoc), id);
     return id;
 }
 
