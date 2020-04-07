@@ -40,3 +40,4 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 target_link_libraries(LSPClient
     Qt5::Core
 )
+
