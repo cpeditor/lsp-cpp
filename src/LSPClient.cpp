@@ -357,6 +357,8 @@ RequestID LSPClient::SendRequest(string_ref method, json jsonDoc)
 
 void LSPClient::writeToServer(std::string &content)
 {
+    if (clientProcess == nullptr || clientProcess->state() != QProcess::Running)
+        return;
     std::string withHeader = "Content-Length: " + std::to_string(content.length()) + "\r\n";
     clientProcess->write(withHeader.c_str());
     clientProcess->write("\r\n");
