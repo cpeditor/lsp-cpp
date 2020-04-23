@@ -94,15 +94,18 @@ class LSPClient : public QObject
     void onError(QJsonObject id, QJsonObject error);
     void onServerError(QProcess::ProcessError error);
     void onServerFinished(int exitCode, QProcess::ExitStatus status);
+    void newStderr(const QString &content);
 
   private slots:
-    void onClientReadReadyStdout();
+    void onClientReadyReadStdout();
+    void onClientReadyReadStderr();
     void onClientError(QProcess::ProcessError error);
     void onClientFinished(int exitCode, QProcess::ExitStatus status);
 
   private:
     QProcess *clientProcess = nullptr;
-    std::vector<std::string> buffer;
+    std::vector<std::string> writeToServerBuffer;
+    bool hasInitialized = false;
 
     void writeToServer(std::string &in);
 

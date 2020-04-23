@@ -31,19 +31,17 @@ LSPClient::LSPClient(QString path, QStringList args)
 
     connect(clientProcess, SIGNAL(errorOccurred(QProcess::ProcessError)), this,
             SLOT(onClientError(QProcess::ProcessError)));
-    connect(clientProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(onClientReadReadyStdout()));
+    connect(clientProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(onClientReadyReadStdout()));
+    connect(clientProcess, SIGNAL(readyReadStandardError()), this, SLOT(onClientReadyReadStderr()));
     connect(clientProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this,
             SLOT(onClientFinished(int, QProcess::ExitStatus)));
-
-    clientProcess->setProcessChannelMode(QProcess::ForwardedErrorChannel);
-    clientProcess->setReadChannel(QProcess::StandardOutput);
 
     clientProcess->start();
 }
 
 // slots
 
-void LSPClient::onClientReadReadyStdout()
+void LSPClient::onClientReadyReadStdout()
 {
     // Fixme(coder3101): If all buffer does not comes in one go, then we are in trouble
     // We can fix it later by specifying that if incomplete buffer recieved in one time
@@ -103,6 +101,13 @@ void LSPClient::onClientReadReadyStdout()
     }
 }
 
+void LSPClient::onClientReadyReadStderr()
+{
+    QString content = clientProcess->readAllStandardError();
+    if (!content.isEmpty())
+        emit newStderr(content);
+}
+
 void LSPClient::onClientError(QProcess::ProcessError error)
 {
     emit onServerError(error);
@@ -116,6 +121,9 @@ void LSPClient::onClientFinished(int exitCode, QProcess::ExitStatus status)
 // Protocol methods
 RequestID LSPClient::initialize(option<DocumentUri> rootUri)
 {
+    if (hasInitialized)
+        return "[Didn't send request because the server is already initialized]";
+    hasInitialized = true;
     InitializeParams params;
     params.processId = static_cast<unsigned int>(QCoreApplication::applicationPid());
     params.rootUri = rootUri;
@@ -357,13 +365,14 @@ RequestID LSPClient::SendRequest(string_ref method, json jsonDoc)
 
 void LSPClient::writeToServer(std::string &content)
 {
-    buffer.push_back("Content-Length: " + std::to_string(content.length()) + "\r\n");
-    buffer.push_back("\r\n");
-    buffer.push_back(content);
+    writeToServerBuffer.push_back("Content-Length: " + std::to_string(content.length()) + "\r\n");
+    writeToServerBuffer.push_back("\r\n");
+    writeToServerBuffer.push_back(content);
     if (clientProcess != nullptr && clientProcess->state() == QProcess::Running)
     {
-        for (auto s : buffer) clientProcess->write(s.c_str());
-        buffer.clear();
+        for (auto s : writeToServerBuffer)
+            clientProcess->write(s.c_str());
+        writeToServerBuffer.clear();
     }
 }
 
