@@ -10,7 +10,7 @@ find_package(Qt5Core  CONFIG REQUIRED)
 
 add_library(LSPClient STATIC
     include/LSPClient.hpp
-    include/LSPProtocol.hpp
+    include/LSP.hpp
     include/LSPUri.hpp
 
     third_party/nlohmann/json.hpp

@@ -18,7 +18,7 @@
 #ifndef LSPCLIENT_HPP
 #define LSPCLIENT_HPP
 
-#include "LSPProtocol.hpp"
+#include "LSP.hpp"
 #include "LSPUri.hpp"
 #include <QJsonDocument>
 #include <QJsonObject>
