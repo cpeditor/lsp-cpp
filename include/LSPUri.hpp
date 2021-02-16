@@ -97,7 +97,7 @@ namespace nlohmann {
 }
 
 inline uint8_t ToHex(uint8_t ch) {
-    return  ch > 9 ? ch + 55 : ch + 48;
+    return  ch > 9 ? ch + 'A' : ch + '0';
 }
 
 struct URIForFile {
