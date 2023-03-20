@@ -26,7 +26,6 @@ target_include_directories(LSPClient PUBLIC
 if(CMAKE_COMPILER_IS_GNUCXX)
     target_compile_options(LSPClient
 		PRIVATE
-		-ansi
 		-pedantic
 		-Wall
 		-Wextra
