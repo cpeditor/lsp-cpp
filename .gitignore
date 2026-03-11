@@ -8,4 +8,5 @@ out/
 *.exe
 *.out
 
+.DS_store
 
