@@ -26,60 +26,68 @@ LSPClient::LSPClient(QString path, QStringList args)
 
 void LSPClient::onClientReadyReadStdout()
 {
-    // Fixme(coder3101): If all buffer does not comes in one go, then we are in trouble
-    // We can fix it later by specifying that if incomplete buffer recieved in one time
-    // then in the next time. We should append and emit the signal only onces.
+    readBuffer.append(clientProcess->readAllStandardOutput());
 
-    QByteArray buffer = clientProcess->readAllStandardOutput();
-
-    int messageStart = buffer.indexOf("\r\n\r\n") + 4;
-    int lenStart = buffer.indexOf("Content-Length: ") + 16;
-    int lenEnd = buffer.indexOf("\r\n");
-    bool ok = false;
-    int contentLength = buffer.mid(lenStart, lenEnd - lenStart).toInt(&ok);
-
-    if (!ok)
-        return;
-
-    QByteArray payload = buffer.mid(messageStart);
-    if (payload.size() != contentLength)
+    // Process all complete messages in the buffer
+    while (true)
     {
-        // Warning: Incomplete message has arrived,
-        // At this point we should keep it in buffer but we are discarding this message;
-        return;
-    }
-    QJsonParseError error{};
+        int headerEnd = readBuffer.indexOf("\r\n\r\n");
+        if (headerEnd == -1)
+            break; // No complete header yet
 
-    auto msg = QJsonDocument::fromJson(payload, &error);
+        int lenStart = readBuffer.indexOf("Content-Length: ");
+        if (lenStart == -1 || lenStart > headerEnd)
+            break;
 
-    if (error.error != QJsonParseError::NoError || !msg.isObject())
-    {
-        // Some JSON Parse Error
-        return;
-    }
-    auto obj = msg.object();
+        lenStart += 16; // skip "Content-Length: "
+        int lenEnd = readBuffer.indexOf("\r\n", lenStart);
+        bool ok = false;
+        int contentLength = readBuffer.mid(lenStart, lenEnd - lenStart).toInt(&ok);
 
-    if (obj.contains("id"))
-    {
-        if (obj.contains("method"))
+        if (!ok)
         {
-            emit onRequest(obj["method"].toString(), obj["param"].toObject(), obj["id"].toObject());
+            readBuffer.clear();
+            break;
         }
-        else if (obj.contains("result"))
+
+        int messageStart = headerEnd + 4;
+        int totalMessageSize = messageStart + contentLength;
+
+        if (readBuffer.size() < totalMessageSize)
+            break; // Incomplete message body, wait for more data
+
+        QByteArray payload = readBuffer.mid(messageStart, contentLength);
+        readBuffer = readBuffer.mid(totalMessageSize);
+
+        QJsonParseError error{};
+        auto msg = QJsonDocument::fromJson(payload, &error);
+
+        if (error.error != QJsonParseError::NoError || !msg.isObject())
+            continue;
+
+        auto obj = msg.object();
+
+        if (obj.contains("id"))
         {
-            emit onResponse(obj["id"].toObject(), obj["result"].toObject());
+            if (obj.contains("method"))
+            {
+                emit onRequest(obj["method"].toString(), obj["param"].toObject(), obj["id"].toObject());
+            }
+            else if (obj.contains("result"))
+            {
+                emit onResponse(obj["id"].toObject(), obj["result"].toObject());
+            }
+            else if (obj.contains("error"))
+            {
+                emit onError(obj["id"].toObject(), obj["error"].toObject());
+            }
         }
-        else if (obj.contains("error"))
+        else if (obj.contains("method"))
         {
-            emit onError(obj["id"].toObject(), obj["error"].toObject());
-        }
-    }
-    else if (obj.contains("method"))
-    {
-        // notification
-        if (obj.contains("params"))
-        {
-            emit onNotify(obj["method"].toString(), obj["params"].toObject());
+            if (obj.contains("params"))
+            {
+                emit onNotify(obj["method"].toString(), obj["params"].toObject());
+            }
         }
     }
 }

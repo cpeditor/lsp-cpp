@@ -89,6 +89,7 @@ class LSPClient : public QObject
     QProcess *clientProcess = nullptr;
     std::vector<std::string> writeToServerBuffer;
     bool hasInitialized = false;
+    QByteArray readBuffer;
 
     void writeToServer(std::string &in);
 
